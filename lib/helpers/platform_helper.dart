@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 bool useDesktopLayout(BuildContext context) {
   if (Platform.isAndroid || Platform.isIOS) {
@@ -14,4 +15,13 @@ bool useDesktopLayout(BuildContext context) {
   } else {
     return true;
   }
+}
+
+Brightness getSystemBrightness() {
+  return SchedulerBinding.instance.window.platformBrightness;
+}
+
+Brightness getCurrentBrightness(BuildContext context) {
+  return MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+      .platformBrightness;
 }

@@ -1,31 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:hydro/helpers/platform_helper.dart';
 import 'package:hydro/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const HydroApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class HydroApp extends StatefulWidget {
+  const HydroApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<HydroApp> createState() => HydroAppState();
+}
+
+class HydroAppState extends State<HydroApp> {
+  ThemeData? customTheme;
+  static HydroAppState? instance;
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.green,
-      ),
-      home: const HomePage(),
+    instance = this;
+    return FutureBuilder(
+      future: useSystem(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return MaterialApp(
+            title: 'hydro',
+            theme: (snapshot.data!) ? light : customTheme!,
+            darkTheme: (snapshot.data!) ? dark : customTheme!,
+            home: const HomePage(),
+          );
+        } else {
+          return const Center(
+            child: SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
     );
   }
+
+  Future<bool> useSystem() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? bright = prefs.getString('theme_override');
+
+    customTheme = await getTheme();
+
+    return bright == null;
+  }
+
+  Future<ThemeData> getTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? bright = prefs.getString('theme_override');
+
+    if (bright == null) {
+      return getSystemBrightness() == Brightness.dark ? dark : light;
+    }
+
+    if (bright == 'dark') {
+      return dark;
+    } else {
+      return light;
+    }
+  }
+
+  ThemeData light = ThemeData(
+    primarySwatch: Colors.green,
+    brightness: Brightness.light,
+  );
+
+  ThemeData dark = ThemeData(
+    primarySwatch: Colors.green,
+    brightness: Brightness.dark,
+  );
 }

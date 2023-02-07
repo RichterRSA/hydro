@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hydro/custom_widgets/custom_page.dart';
+import 'package:hydro/helpers/platform_helper.dart';
 
 class OverviewPage extends StatefulWidget {
   const OverviewPage({super.key});
@@ -10,26 +12,11 @@ class OverviewPage extends StatefulWidget {
 class _OverviewPageState extends State<OverviewPage> {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            color: Colors.green,
-            alignment: Alignment.center,
-            child: const Text(
-              'Overview',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 30.0,
-              ),
-            ),
-          ),
-          const Text('empty for now...'),
-        ],
-      ),
+    return const CustomPage(
+      title: 'Overview',
+      children: [
+        Text('empty for now...'),
+      ],
     );
   }
 }

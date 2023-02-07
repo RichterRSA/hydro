@@ -28,20 +28,30 @@ class DesktopHome extends StatefulWidget {
 }
 
 class _DesktopHomeState extends State<DesktopHome> {
-  int railSelectedIndex = 0;
+  int railSelectedIndex = 1;
+  bool navRailExtended = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
           NavigationRail(
+            extended: navRailExtended,
             onDestinationSelected: (int index) {
               setState(() {
-                railSelectedIndex = index;
+                if (index > 0) {
+                  railSelectedIndex = index;
+                } else {
+                  navRailExtended = !navRailExtended;
+                }
               });
             },
-            labelType: NavigationRailLabelType.selected,
+            //labelType: NavigationRailLabelType.selected,
             destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.menu),
+                label: Text('Menu'),
+              ),
               NavigationRailDestination(
                 icon: Icon(Icons.home_outlined),
                 selectedIcon: Icon(Icons.home),
@@ -65,7 +75,7 @@ class _DesktopHomeState extends State<DesktopHome> {
             thickness: 1,
             width: 1,
           ),
-          Pages()[railSelectedIndex],
+          Expanded(child: pages()[railSelectedIndex - 1]),
         ],
       ),
     );
@@ -85,7 +95,14 @@ class _MobileHomeState extends State<MobileHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        elevation: 0.0,
+        centerTitle: true,
+        title: Text(pageTitles[navbarSelectedIndex]),
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.green,
         onTap: (int index) {
           setState(() {
             navbarSelectedIndex = index;
@@ -109,15 +126,17 @@ class _MobileHomeState extends State<MobileHome> {
         ],
         currentIndex: navbarSelectedIndex,
       ),
-      body: Pages()[navbarSelectedIndex],
+      body: pages()[navbarSelectedIndex],
     );
   }
 }
 
-List<Widget> Pages() {
-  return const [
+List<Widget> pages() {
+  return [
     OverviewPage(),
     DeveloperPage(),
     SettingsPage(),
   ];
 }
+
+const pageTitles = ['Overview', 'Developer Options', 'Settings'];
