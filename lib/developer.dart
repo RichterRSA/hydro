@@ -35,25 +35,6 @@ class _DeveloperPageState extends State<DeveloperPage> {
           canToggle: true,
           unit: 'units',
         ),
-        DevSensor(
-          sensorName: 'pH Sensor',
-          canToggle: true,
-        ),
-        DevSensor(
-          sensorName: 'Temp Sensor',
-          canToggle: true,
-          unit: 'deg',
-        ),
-        DevSensor(
-          sensorName: 'Ultrasonic Sensor',
-          canToggle: true,
-          unit: 'cm',
-        ),
-        DevSensor(
-          sensorName: 'EC Sensor',
-          canToggle: true,
-          unit: 'units',
-        ),
       ],
     );
   }
