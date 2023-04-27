@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hydro/developer.dart';
 import 'package:hydro/helpers/platform_helper.dart';
 import 'package:hydro/overview.dart';
 import 'package:hydro/settings.dart';
+
+import 'developer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -132,7 +133,7 @@ class _MobileHomeState extends State<MobileHome> {
 }
 
 List<Widget> pages() {
-  return [
+  return const [
     OverviewPage(),
     DeveloperPage(),
     SettingsPage(),

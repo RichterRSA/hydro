@@ -1,7 +1,7 @@
 import 'dart:math';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class StatsCard extends StatefulWidget {
   final String title;
@@ -16,10 +16,10 @@ class _StatsCardState extends State<StatsCard> {
   List<_MeasurementData> measuredData = [];
 
   void generateRandomData(int min, int max, int count) {
-    for (int i = 0; i < count; i++) {
+    int l = measuredData.length;
+    for (int i = l; i < l + count; i++) {
       double value = generateRandom(min, max);
-      DateTime dt = DateTime(2023, 0, 0, 0, 0, i);
-      measuredData.add(_MeasurementData(dt, value));
+      measuredData.add(_MeasurementData(i * 1.0, value));
     }
   }
 
@@ -32,10 +32,7 @@ class _StatsCardState extends State<StatsCard> {
     while (true) {
       await Future.delayed(const Duration(seconds: 1));
       measuredData.add(
-        _MeasurementData(
-            measuredData[measuredData.length - 1]
-                .time
-                .add(const Duration(seconds: 1)),
+        _MeasurementData(measuredData[measuredData.length - 1].time + 0.1,
             generateRandom(min, max)),
       );
     }
@@ -43,7 +40,6 @@ class _StatsCardState extends State<StatsCard> {
 
   @override
   Widget build(BuildContext context) {
-    generateRandomData(20, 30, 10);
     return Card(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -58,21 +54,28 @@ class _StatsCardState extends State<StatsCard> {
               style: const TextStyle(color: Colors.grey),
             ),
           ),
-          SfCartesianChart(
-            primaryXAxis: DateTimeAxis(),
-            series: <ChartSeries<_MeasurementData, DateTime>>[
-              // Renders line chart
-              LineSeries<_MeasurementData, DateTime>(
-                  dataSource: measuredData,
-                  xValueMapper: (_MeasurementData data, _) => data.time,
-                  yValueMapper: (_MeasurementData data, _) => data.value)
-            ],
+          SizedBox(
+            height: 300.0,
+            child: FutureBuilder(
+              builder: (context, snapshot) {
+                return LineChart(getData());
+              },
+              future: addValues(0, 20),
+            ),
           ),
           const Spacer(),
           ButtonBar(
             alignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const Text('Current Value: N/A'),
+              Row(
+                children: const [
+                  Text('Current Value: '),
+                  Text(
+                    'N/A',
+                    style: TextStyle(color: Colors.grey),
+                  )
+                ],
+              ),
               const Spacer(),
               TextButton(
                 onPressed: () {
@@ -92,11 +95,26 @@ class _StatsCardState extends State<StatsCard> {
       ),
     );
   }
+
+  LineChartData getData() {
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        horizontalInterval: 1,
+        verticalInterval: 1,
+      ),
+      lineBarsData: [
+        LineChartBarData(
+          spots: [for (final d in measuredData) FlSpot(d.time, d.value)],
+        ),
+      ],
+    );
+  }
 }
 
 class _MeasurementData {
   _MeasurementData(this.time, this.value);
 
-  final DateTime time;
+  final double time;
   final double value;
 }

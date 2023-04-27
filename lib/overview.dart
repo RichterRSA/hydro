@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:hydro/custom_widgets/custom_page.dart';
-import 'package:hydro/custom_widgets/stats_card.dart';
 import 'package:hydro/helpers/readings.dart';
+
+import 'custom_widgets/stats_card.dart';
 
 class OverviewPage extends StatefulWidget {
   const OverviewPage({super.key});
@@ -50,14 +51,14 @@ class _OverviewPageState extends State<OverviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    var items = [
-      const StatsCard(title: 'Temperature', subtitle: '*C'),
-      const StatsCard(title: 'Humidity', subtitle: '%'),
-      const StatsCard(title: 'Electrical Conductivity', subtitle: 'mS'),
-      const StatsCard(title: 'pH'),
-      const StatsCard(title: 'Power Consumption', subtitle: 'mW'),
-      const StatsCard(title: 'Water Flow', subtitle: 'm^3/s'),
-      const StatsCard(title: 'Tank Water Level', subtitle: '%'),
+    var items = const [
+      StatsCard(title: 'Temperature', subtitle: '*C'),
+      StatsCard(title: 'Humidity', subtitle: '%'),
+      StatsCard(title: 'Electrical Conductivity', subtitle: 'mS'),
+      StatsCard(title: 'pH'),
+      StatsCard(title: 'Power Consumption', subtitle: 'mW'),
+      StatsCard(title: 'Water Flow', subtitle: 'm^3/s'),
+      StatsCard(title: 'Tank Water Level', subtitle: '%'),
     ];
 
     return CustomPage(
