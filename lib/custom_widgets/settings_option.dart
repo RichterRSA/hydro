@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class SettingsOption extends StatefulWidget {
@@ -7,7 +7,7 @@ class SettingsOption extends StatefulWidget {
   final bool? value;
   final bool? enabled;
   final void Function(bool)? onChange;
-  final void Function(SingletonFlutterWindow)? onWindowChange;
+  final void Function(FlutterView)? onWindowChange;
 
   const SettingsOption({
     super.key,
@@ -27,15 +27,17 @@ class _SettingsOptionState extends State<SettingsOption> {
   bool switchValue = false;
   bool init = false;
 
-  @override
-  void initState() {
-    super.initState();
-    final window = WidgetsBinding.instance.window;
+  // TODO: What was this doing???
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   final window = WidgetsBinding.instance.window;
+  //   final window = View.of(context);
 
-    if (widget.onWindowChange != null) {
-      widget.onWindowChange!.call(window);
-    }
-  }
+  //   if (widget.onWindowChange != null) {
+  //     widget.onWindowChange!.call(window);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

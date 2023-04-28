@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 bool useDesktopLayout(BuildContext context) {
   if (Platform.isAndroid || Platform.isIOS) {
@@ -18,10 +18,10 @@ bool useDesktopLayout(BuildContext context) {
 }
 
 Brightness getSystemBrightness() {
-  return SchedulerBinding.instance.window.platformBrightness;
+  return PlatformDispatcher.instance.platformBrightness;
 }
 
 Brightness getCurrentBrightness(BuildContext context) {
-  return MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+  return MediaQueryData.fromView(View.of(context))
       .platformBrightness;
 }

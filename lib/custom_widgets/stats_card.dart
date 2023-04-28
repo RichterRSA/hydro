@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -14,29 +12,6 @@ class StatsCard extends StatefulWidget {
 
 class _StatsCardState extends State<StatsCard> {
   List<_MeasurementData> measuredData = [];
-
-  void generateRandomData(int min, int max, int count) {
-    int l = measuredData.length;
-    for (int i = l; i < l + count; i++) {
-      double value = generateRandom(min, max);
-      measuredData.add(_MeasurementData(i * 1.0, value));
-    }
-  }
-
-  double generateRandom(int min, int max) {
-    Random r = Random();
-    return (r.nextInt(max - min) + min).toDouble();
-  }
-
-  Future<void> addValues(int min, int max) async {
-    while (true) {
-      await Future.delayed(const Duration(seconds: 1));
-      measuredData.add(
-        _MeasurementData(measuredData[measuredData.length - 1].time + 0.1,
-            generateRandom(min, max)),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,45 +31,46 @@ class _StatsCardState extends State<StatsCard> {
           ),
           SizedBox(
             height: 300.0,
-            child: FutureBuilder(
-              builder: (context, snapshot) {
-                return LineChart(getData());
-              },
-              future: addValues(0, 20),
-            ),
+            child: LineChart(getData()),
           ),
-          const Spacer(),
-          ButtonBar(
-            alignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                children: const [
-                  Text('Current Value: '),
-                  Text(
-                    'N/A',
-                    style: TextStyle(color: Colors.grey),
-                  )
-                ],
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {
-                  // Perform some action
-                },
-                child: const Text('More'),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Perform some action
-                },
-                child: const Text('Save'),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            child: ButtonBar(
+              alignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Text('Current Value: '),
+                    Text(
+                      'N/A',
+                      style: TextStyle(color: Colors.grey),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // Perform some action
+                      },
+                      child: const Text('More'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Perform some action
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+
 
   LineChartData getData() {
     return LineChartData(
