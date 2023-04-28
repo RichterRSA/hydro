@@ -27,18 +27,6 @@ class _SettingsOptionState extends State<SettingsOption> {
   bool switchValue = false;
   bool init = false;
 
-  // TODO: What was this doing???
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   final window = WidgetsBinding.instance.window;
-  //   final window = View.of(context);
-
-  //   if (widget.onWindowChange != null) {
-  //     widget.onWindowChange!.call(window);
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     if (widget.value != null && !init) {
