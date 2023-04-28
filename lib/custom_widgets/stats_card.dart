@@ -33,7 +33,6 @@ class _StatsCardState extends State<StatsCard> {
             height: 300.0,
             child: LineChart(getData()),
           ),
-          //const Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
             child: ButtonBar(
