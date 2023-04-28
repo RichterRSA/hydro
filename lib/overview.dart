@@ -13,17 +13,23 @@ class OverviewPage extends StatefulWidget {
 }
 
 const double minItemWidth = 300.0;
-const double itemHeight = 450;
+const double itemHeight = 420;
 
 class _OverviewPageState extends State<OverviewPage> {
+  
   int getCrossAxisCount(double width) {
     return (width / minItemWidth).floor().clamp(1, 4);
   }
 
   int getMainAxis(double width, int itemCount) {
     int ca = getCrossAxisCount(width);
-    return (itemCount / ca).ceil();
+    int rowCount = (itemCount / ca).ceil();
+    if (ca == 1) {
+      rowCount = itemCount;
+    }
+    return rowCount;
   }
+
 
   List<FixedTrackSize> getCrossAxisSizes(double width) {
     List<FixedTrackSize> result = [];
@@ -43,11 +49,16 @@ class _OverviewPageState extends State<OverviewPage> {
     int rowCount = getMainAxis(width, itemCount);
 
     for (int i = 1; i <= rowCount; i++) {
-      result.add(itemHeight.round().px);
+      if (i > result.length) {
+        result.add(itemHeight.round().px);
+      } else {
+        result[i - 1] = itemHeight.round().px;
+      }
     }
 
     return result;
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,14 +82,25 @@ class _OverviewPageState extends State<OverviewPage> {
               padding: const EdgeInsets.all(15.0),
               child: LayoutBuilder(builder: (context, constraints) {
                 return LayoutGrid(
-                  // Note that the number of columns and rows matches the grid above (3x3)
                   columnSizes: getCrossAxisSizes(constraints.maxWidth - 5.0),
                   rowSizes: getMainAxisSizes(
                     constraints.maxWidth,
                     items.length,
                   ),
-                  children: items,
+                  children: List.generate(
+                    getCrossAxisCount(constraints.maxWidth - 5.0) *
+                        getMainAxis(constraints.maxWidth, items.length),
+                    (index) {
+                      if (index < items.length) {
+                        return items[index];
+                      } else {
+                        // Add an empty placeholder widget for any extra cells
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
                 );
+
               }),
             );
           },
