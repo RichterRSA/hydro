@@ -1,18 +1,33 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:stream_mixin/stream_mixin.dart';
 
 class StatsCard extends StatefulWidget {
   final String title;
   final String? subtitle;
-  const StatsCard({super.key, required this.title, this.subtitle});
+  final updater = StatCardUpdater();
+  List<MeasurementData> measuredData = [
+    for (int i = 0; i < 10; i++) MeasurementData(i.toDouble(), 25.0)
+  ];
+  StatsCard({super.key, required this.title, this.subtitle});
+
+  void updateData(List<MeasurementData> data) {
+    measuredData.addAll(data);
+
+    while (measuredData.length > 10) {
+      measuredData.removeAt(0);
+    }
+
+    updater.update(null);
+  }
 
   @override
   State<StatsCard> createState() => _StatsCardState();
 }
 
-class _StatsCardState extends State<StatsCard> {
-  List<_MeasurementData> measuredData = [];
+class StatCardUpdater with StreamMixin {}
 
+class _StatsCardState extends State<StatsCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -31,7 +46,14 @@ class _StatsCardState extends State<StatsCard> {
           ),
           SizedBox(
             height: 300.0,
-            child: LineChart(getData()),
+            child: StreamBuilder(
+              stream: widget.updater.onChange,
+              builder: (cxt, snap) => Padding(
+                padding: const EdgeInsets.only(right: 25.0),
+                child: LineChart(getData(),
+                    swapAnimationDuration: const Duration(milliseconds: 150)),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -71,25 +93,52 @@ class _StatsCardState extends State<StatsCard> {
     );
   }
 
-
   LineChartData getData() {
     return LineChartData(
       gridData: FlGridData(
         show: true,
-        horizontalInterval: 1,
-        verticalInterval: 1,
+        horizontalInterval: 5.0,
+        verticalInterval: 1.0,
       ),
       lineBarsData: [
         LineChartBarData(
-          spots: [for (final d in measuredData) FlSpot(d.time, d.value)],
+            spots: [
+              for (final d in widget.measuredData) FlSpot(d.time, d.value)
+            ],
+            isCurved: true,
+            preventCurveOverShooting: true,
+            curveSmoothness: 0.5,
+            dotData: FlDotData(show: false)
         ),
       ],
+      minY: 0.0,
+      maxY: 30.0,
+      titlesData: FlTitlesData(
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 1.0,
+          ),
+        ),
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: false,
+            reservedSize: 0,
+          ),
+        ),
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: false,
+            reservedSize: 0,
+          ),
+        ),
+      ),
     );
   }
 }
 
-class _MeasurementData {
-  _MeasurementData(this.time, this.value);
+class MeasurementData {
+  MeasurementData(this.time, this.value);
 
   final double time;
   final double value;

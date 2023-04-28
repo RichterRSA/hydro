@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:hydro/custom_widgets/custom_page.dart';
@@ -16,7 +19,61 @@ const double minItemWidth = 300.0;
 const double itemHeight = 420;
 
 class _OverviewPageState extends State<OverviewPage> {
-  
+  Timer _timer = Timer.periodic(const Duration(seconds: 5), (timer) {});
+  var items = [
+    StatsCard(title: 'Temperature', subtitle: '*C'),
+    StatsCard(title: 'Humidity', subtitle: '%'),
+    StatsCard(title: 'Electrical Conductivity', subtitle: 'mS'),
+    StatsCard(title: 'pH'),
+    StatsCard(title: 'Power Consumption', subtitle: 'mW'),
+    StatsCard(title: 'Water Flow', subtitle: 'm^3/s'),
+    StatsCard(title: 'Tank Water Level', subtitle: '%'),
+  ];
+  double time = 10.0;
+
+  @override
+  void initState() {
+    super.initState();
+    // start the timer to check for updates every 5 seconds
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      checkForUpdates();
+    });
+    checkForUpdates();
+  }
+
+  @override
+  void dispose() {
+    // cancel the timer when the widget is disposed
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void checkForUpdates() {
+    for (StatsCard item in items) {
+      item.updateData([
+        MeasurementData(time, getRandomSmooth(item.measuredData.last.value))
+      ]);
+    }
+    time += 1.0;
+  }
+
+  double getRandomSmooth(double prev) {
+    Random rand = Random();
+    double val = rand.nextDouble();
+
+    val *= (rand.nextInt(2) > 0) ? 1.0 : -1.0;
+
+    if (prev + val > 30) {
+      prev -= val;
+    } else if (prev + val < 20) {
+      prev -= val;
+    } else {
+      prev += val;
+    }
+
+    return prev;
+  }
+
   int getCrossAxisCount(double width) {
     return (width / minItemWidth).floor().clamp(1, 4);
   }
@@ -29,7 +86,6 @@ class _OverviewPageState extends State<OverviewPage> {
     }
     return rowCount;
   }
-
 
   List<FixedTrackSize> getCrossAxisSizes(double width) {
     List<FixedTrackSize> result = [];
@@ -59,19 +115,8 @@ class _OverviewPageState extends State<OverviewPage> {
     return result;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    var items = const [
-      StatsCard(title: 'Temperature', subtitle: '*C'),
-      StatsCard(title: 'Humidity', subtitle: '%'),
-      StatsCard(title: 'Electrical Conductivity', subtitle: 'mS'),
-      StatsCard(title: 'pH'),
-      StatsCard(title: 'Power Consumption', subtitle: 'mW'),
-      StatsCard(title: 'Water Flow', subtitle: 'm^3/s'),
-      StatsCard(title: 'Tank Water Level', subtitle: '%'),
-    ];
-
     return CustomPage(
       title: 'Overview',
       children: [
@@ -100,7 +145,6 @@ class _OverviewPageState extends State<OverviewPage> {
                     },
                   ),
                 );
-
               }),
             );
           },
