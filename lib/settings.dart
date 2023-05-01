@@ -15,6 +15,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool darkModeEnabled = false;
   bool automaticDarkMode = true;
+  int layoutMode = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -22,53 +23,67 @@ class _SettingsPageState extends State<SettingsPage> {
     return FutureBuilder(
       future: getSettings(),
       builder: (context, snapshot) {
-        return CustomPage(
-          title: 'Settings',
-          children: [
-            SettingsOption(
-              settingName: 'Automatic Light/Dark',
-              description: 'Adjusts the theme based on the system theme.',
-              value: snapshot.hasData ? snapshot.data!.automaticTheme : false,
-              onChange: (value) async {
-                final prefs = await SharedPreferences.getInstance();
-                if (value) {
-                  await prefs.remove('theme_override');
-                } else {
-                  await prefs.setString(
-                      'theme_override', (darkModeEnabled) ? 'dark' : 'light');
-                }
+        return (snapshot.hasData)
+            ? CustomPage(
+                title: 'Settings',
+                children: [
+                  SettingsOption(
+                    settingName: 'Automatic Light/Dark',
+                    description: 'Adjusts the theme based on the system theme.',
+                    value: snapshot.data!.automaticTheme,
+                    onChange: (value) async {
+                      final prefs = await SharedPreferences.getInstance();
+                      if (value) {
+                        await prefs.remove('theme_override');
+                      } else {
+                        await prefs.setString('theme_override',
+                            (darkModeEnabled) ? 'dark' : 'light');
+                      }
 
-                setState(() {
-                  automaticDarkMode = value;
-                });
+                      setState(() {
+                        automaticDarkMode = value;
+                      });
 
-                HydroAppState.instance!.setState(() {});
-              },
-            ),
-            SettingsOption(
-              settingName: 'Dark Mode',
-              description: 'Enable the dark theme.',
-              value: snapshot.hasData ? snapshot.data!.darkMode : false,
-              enabled: !automaticDarkMode,
-              onChange: (value) async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString(
-                    'theme_override', (value) ? 'dark' : 'light');
-                setState(() {
-                  darkModeEnabled = value;
-                });
+                      HydroAppState.instance!.setState(() {});
+                    },
+                  ),
+                  automaticDarkMode
+                      ? const SizedBox.shrink()
+                      : SettingsOption(
+                          settingName: 'Dark Mode',
+                          description: 'Enable the dark theme.',
+                          value: snapshot.data!.darkMode,
+                          enabled: !automaticDarkMode,
+                          onChange: (val) async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setString(
+                                'theme_override', (val) ? 'dark' : 'light');
+                            setState(() {
+                              darkModeEnabled = val;
+                            });
 
-                HydroAppState.instance!.setState(() {});
-              },
-            ),
-            SettingsOption(
-              settingName: 'Mobile Theme',
-              description: 'Uses the theme used on mobile devices.',
-              value: false,
-              onChange: (p0) {},
-            ),
-          ],
-        );
+                            HydroAppState.instance!.setState(() {});
+                          },
+                        ),
+                  SettingsDropOption(
+                    settingName: 'Mobile Theme',
+                    description: 'Uses the theme used on mobile devices.',
+                    value: layoutMode,
+                    onChange: (val) async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setInt('layout_mode', val);
+                      setState(() {
+                        layoutMode = val;
+                      });
+                      HydroAppState.instance!.setState(() {});
+                    },
+                    options: const ["Automatic", "Mobile", "Desktop"],
+                  ),
+                ],
+              )
+            : const Center(
+                child: CircularProgressIndicator(),
+              );
       },
     );
   }
@@ -82,6 +97,8 @@ class _SettingsPageState extends State<SettingsPage> {
     automaticDarkMode = info.automaticTheme;
     info.darkMode = !info.automaticTheme ? (themeOverride == 'dark') : false;
     darkModeEnabled = info.darkMode;
+    layoutMode = prefs.getInt('layout_mode') ?? 0;
+
     return info;
   }
 }
@@ -89,6 +106,6 @@ class _SettingsPageState extends State<SettingsPage> {
 class SettingsPageInfo {
   bool darkMode = false;
   bool automaticTheme = true;
-
+  int layoutMode = 0;
   SettingsPageInfo();
 }

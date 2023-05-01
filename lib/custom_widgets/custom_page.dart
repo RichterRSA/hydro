@@ -16,8 +16,11 @@ class _CustomPageState extends State<CustomPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        (useDesktopLayout(context))
-            ? Container(
+        FutureBuilder(
+          builder: (context, snapshot) {
+            return snapshot.hasData
+                ? (snapshot.data!
+                    ? Container(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 color: Colors.green,
                 alignment: Alignment.center,
@@ -30,7 +33,11 @@ class _CustomPageState extends State<CustomPage> {
                   ),
                 ),
               )
-            : Container(),
+                    : Container())
+                : const Center(child: CircularProgressIndicator());
+          },
+          future: useDesktopLayout(View.of(context)),
+        ),
         Expanded(
           child: ListView(
             children:

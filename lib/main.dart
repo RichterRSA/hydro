@@ -17,20 +17,23 @@ class HydroApp extends StatefulWidget {
 class HydroAppState extends State<HydroApp> {
   ThemeData? customTheme;
   static HydroAppState? instance;
+  bool? isMobile;
 
   @override
   Widget build(BuildContext context) {
     instance = this;
+
     return FutureBuilder(
       future: useSystem(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return MaterialApp(
-            title: 'hydro',
-            theme: (snapshot.data!) ? light : customTheme!,
-            darkTheme: (snapshot.data!) ? dark : customTheme!,
-            home: const HomePage(),
-          );
+              title: 'Metroponics',
+              theme: (snapshot.data!) ? light : customTheme!,
+              darkTheme: (snapshot.data!) ? dark : customTheme!,
+              home: HomePage(
+                isMobile: isMobile!,
+              ));
         } else {
           return const Center(
             child: SizedBox(
@@ -44,11 +47,20 @@ class HydroAppState extends State<HydroApp> {
     );
   }
 
+  Future<void> getLayout() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? mode = prefs.getInt('layout_mode');
+
+    if (mode == null) return;
+    isMobile = mode == 1;
+  }
+
   Future<bool> useSystem() async {
     final prefs = await SharedPreferences.getInstance();
     String? bright = prefs.getString('theme_override');
 
     customTheme = await getTheme();
+    getLayout();
 
     return bright == null;
   }

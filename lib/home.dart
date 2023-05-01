@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:hydro/helpers/platform_helper.dart';
 import 'package:hydro/overview.dart';
 import 'package:hydro/settings.dart';
 
 import 'developer.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool isMobile;
+  const HomePage({super.key, required this.isMobile});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -15,7 +15,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return useDesktopLayout(context) ? const DesktopHome() : const MobileHome();
+    if (widget.isMobile) {
+      return const MobileHome();
+    } else {
+      return const DesktopHome();
+    }
   }
 }
 
@@ -47,7 +51,6 @@ class _DesktopHomeState extends State<DesktopHome> {
                 }
               });
             },
-            //labelType: NavigationRailLabelType.selected,
             destinations: const [
               NavigationRailDestination(
                 icon: Icon(Icons.menu),

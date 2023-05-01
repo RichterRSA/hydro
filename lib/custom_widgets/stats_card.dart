@@ -11,13 +11,18 @@ class StatsCard extends StatefulWidget {
   ];
   StatsCard({super.key, required this.title, this.subtitle});
 
-  void updateData(List<MeasurementData> data) {
+  void updateDataCurrent(List<MeasurementData> data) {
     measuredData.addAll(data);
 
     while (measuredData.length > 10) {
       measuredData.removeAt(0);
     }
 
+    updater.update(null);
+  }
+
+  void updateDataHistorical(List<MeasurementData> data) {
+    measuredData = data;
     updater.update(null);
   }
 
@@ -60,13 +65,20 @@ class _StatsCardState extends State<StatsCard> {
             child: ButtonBar(
               alignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Text('Current Value: '),
-                    Text(
-                      'N/A',
-                      style: TextStyle(color: Colors.grey),
-                    )
+                    const Text('Current Value: '),
+                    StreamBuilder(
+                      stream: widget.updater.onChange,
+                      builder: (cxt, snap) => Padding(
+                          padding: const EdgeInsets.only(right: 25.0),
+                          child: Text(
+                            ((widget.measuredData.last.value * 100).round() /
+                                    100)
+                                .toString(), //TODO: roundTo(2) + singular streambuilder
+                            style: const TextStyle(color: Colors.grey),
+                          )),
+                    ),
                   ],
                 ),
                 Row(
@@ -94,6 +106,16 @@ class _StatsCardState extends State<StatsCard> {
   }
 
   LineChartData getData() {
+    double max = 0, min = 99999;
+
+    for (var data in widget.measuredData) {
+      if (data.value > max) {
+        max = (data.value * 1.1).ceil() as double;
+      } else if (data.value < min) {
+        min = (data.value * 0.9).floor() as double;
+      }
+    }
+
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -108,11 +130,10 @@ class _StatsCardState extends State<StatsCard> {
             isCurved: true,
             preventCurveOverShooting: true,
             curveSmoothness: 0.5,
-            dotData: FlDotData(show: false)
-        ),
+            dotData: FlDotData(show: false)),
       ],
-      minY: 0.0,
-      maxY: 30.0,
+      minY: min,
+      maxY: max,
       titlesData: FlTitlesData(
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
